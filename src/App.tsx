@@ -18,9 +18,12 @@ export function App() {
       <header className="sticky top-0 z-30 border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <BrandLogo size="sm" showTagline />
-          <div className="flex items-center gap-1.5 text-[10px] tracking-widest text-muted-foreground uppercase">
-            <ActivityIcon className="size-3" />
-            <span>7 Platforms</span>
+          <div className="group flex cursor-default items-center gap-1.5 text-[10px] tracking-widest text-muted-foreground uppercase transition-colors duration-200 hover:text-foreground/70">
+            <span className="relative flex size-3 items-center justify-center">
+              <ActivityIcon className="size-3 transition-transform duration-300 group-hover:scale-110" />
+              <span className="absolute inset-0 rounded-full bg-foreground/0 transition-all duration-300 group-hover:bg-foreground/5" />
+            </span>
+            <span className="transition-[letter-spacing] duration-300 group-hover:tracking-[0.15em]">7 Platforms</span>
           </div>
         </div>
       </header>
@@ -89,7 +92,7 @@ export function App() {
       {/* Footer */}
       <footer className="border-t border-border/30 px-6 py-4">
         <div className="mx-auto flex max-w-6xl items-center justify-center">
-          <span className="text-[10px] tracking-widest text-muted-foreground/50 uppercase">
+          <span className="cursor-default text-[10px] tracking-widest text-muted-foreground/50 uppercase transition-all duration-300 hover:tracking-[0.2em] hover:text-muted-foreground/80">
             Mscout — Music Scout
           </span>
         </div>

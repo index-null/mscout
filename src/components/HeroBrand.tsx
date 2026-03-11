@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { useEffect, useState, useRef, useCallback } from "react"
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion"
 import { LogoIcon } from "@/components/BrandLogo"
 
 // ─── 品牌名逐字符数据 ─────────────────────────────────────────
@@ -53,26 +53,42 @@ function MusicParticles() {
   )
 }
 
-// ─── 逐字符揭示的品牌名 ──────────────────────────────────────
+// ─── 逐字符揭示的品牌名（带独立 hover 交互）──────────────────
 function BrandTitle() {
+  const [hoveredChar, setHoveredChar] = useState<number | null>(null)
+
   return (
     <div className="flex items-baseline gap-[2px]">
       {BRAND_CHARS.map((char, i) => {
         const isM = i === 0
+        const isHovered = hoveredChar === i
 
         return (
           <motion.span
             key={i}
             initial={{ opacity: 0, y: 40, rotateX: -90, filter: "blur(8px)" }}
-            animate={{ opacity: 1, y: 0, rotateX: 0, filter: "blur(0px)" }}
-            transition={{
-              duration: isM ? 0.8 : 0.6,
-              delay: 0.3 + i * 0.08,
-              ease: [0.215, 0.61, 0.355, 1],
+            animate={{
+              opacity: 1,
+              y: isHovered ? -8 : 0,
+              rotateX: 0,
+              filter: "blur(0px)",
+              scale: isHovered ? 1.1 : 1,
+              rotateZ: isHovered ? (i % 2 === 0 ? -3 : 3) : 0,
             }}
-            className={`inline-block text-[clamp(4rem,12vw,9rem)] leading-none font-bold tracking-tighter ${
+            transition={
+              isHovered
+                ? { type: "spring", stiffness: 400, damping: 15 }
+                : {
+                    duration: isM ? 0.8 : 0.6,
+                    delay: 0.3 + i * 0.08,
+                    ease: [0.215, 0.61, 0.355, 1],
+                  }
+            }
+            onMouseEnter={() => setHoveredChar(i)}
+            onMouseLeave={() => setHoveredChar(null)}
+            className={`inline-block cursor-default select-none text-[clamp(4rem,12vw,9rem)] leading-none font-bold tracking-tighter transition-colors duration-200 ${
               isM ? "relative" : ""
-            }`}
+            } ${isHovered ? "text-foreground" : ""}`}
             style={{ transformOrigin: "bottom center" }}
           >
             {isM ? (
@@ -80,20 +96,29 @@ function BrandTitle() {
                 {/* M 字符 — 特殊待遇：底部装饰线 + 微妙持续动效 + 音符粒子 */}
                 <motion.span
                   className="relative inline-block"
-                  animate={{ y: [0, -3, 0] }}
-                  transition={{
-                    duration: 3,
-                    delay: 1.5,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
+                  animate={{ y: isHovered ? 0 : [0, -3, 0] }}
+                  transition={
+                    isHovered
+                      ? { type: "spring", stiffness: 400, damping: 15 }
+                      : {
+                          duration: 3,
+                          delay: 1.5,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }
+                  }
                 >
                   {char}
                   {/* 底部品牌标识线 */}
                   <motion.span
                     className="absolute -bottom-1 left-0 h-[3px] w-full rounded-full bg-foreground"
                     initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
+                    animate={{
+                      scaleX: 1,
+                      backgroundColor: isHovered
+                        ? "var(--foreground)"
+                        : "var(--foreground)",
+                    }}
                     transition={{
                       duration: 0.4,
                       delay: 0.3 + BRAND_CHARS.length * 0.08 + 0.3,
@@ -128,27 +153,45 @@ function BrandTitle() {
   )
 }
 
-// ─── 音频频谱可视化（纯装饰性） ─────────────────────────────
+// ─── 音频频谱可视化（hover 激活增强）─────────────────────────
 function AudioSpectrum() {
+  const [isHovered, setIsHovered] = useState(false)
+
   return (
-    <div className="flex h-16 items-end justify-center gap-[2px]">
+    <div
+      className="flex h-16 cursor-pointer items-end justify-center gap-[2px]"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {SPECTRUM_BAR_DATA.map((bar) => (
         <motion.div
           key={bar.id}
-          className="w-[3px] rounded-full bg-foreground/[0.08]"
+          className="w-[3px] rounded-full transition-colors duration-300"
+          style={{
+            backgroundColor: isHovered
+              ? `oklch(0.6 0.15 ${(bar.phase + 200) % 360} / 0.25)`
+              : "oklch(0 0 0 / 0.08)",
+          }}
           initial={{ height: 4 }}
           animate={{
-            height: [
-              4,
-              bar.amplitude * 56 + 8,
-              bar.amplitude * 24 + 4,
-              bar.amplitude * 48 + 12,
-              4,
-            ],
+            height: isHovered
+              ? [
+                  bar.amplitude * 64 + 12,
+                  bar.amplitude * 32 + 6,
+                  bar.amplitude * 56 + 16,
+                  bar.amplitude * 64 + 12,
+                ]
+              : [
+                  4,
+                  bar.amplitude * 56 + 8,
+                  bar.amplitude * 24 + 4,
+                  bar.amplitude * 48 + 12,
+                  4,
+                ],
           }}
           transition={{
-            duration: bar.speed,
-            delay: (bar.phase / 360) * 2,
+            duration: isHovered ? bar.speed * 0.5 : bar.speed,
+            delay: isHovered ? (bar.phase / 360) * 0.3 : (bar.phase / 360) * 2,
             repeat: Infinity,
             ease: "easeInOut",
           }}
@@ -187,10 +230,46 @@ function RotatingKeyword() {
   )
 }
 
-// ─── Logo 入场动画 ────────────────────────────────────────────
+// ─── Logo 入场动画 + 磁力鼠标追踪 ────────────────────────────
 function AnimatedLogo() {
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // 鼠标位置 motion values
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+
+  // 弹性跟随 — 有质量感
+  const springConfig = { stiffness: 150, damping: 20, mass: 0.5 }
+  const x = useSpring(mouseX, springConfig)
+  const y = useSpring(mouseY, springConfig)
+
+  // 微弱旋转跟随鼠标
+  const rotateX = useTransform(y, [-30, 30], [8, -8])
+  const rotateY = useTransform(x, [-30, 30], [-8, 8])
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      const rect = containerRef.current?.getBoundingClientRect()
+      if (!rect) return
+      const centerX = rect.left + rect.width / 2
+      const centerY = rect.top + rect.height / 2
+      // 限制偏移范围
+      const dx = Math.max(-30, Math.min(30, (e.clientX - centerX) * 0.15))
+      const dy = Math.max(-30, Math.min(30, (e.clientY - centerY) * 0.15))
+      mouseX.set(dx)
+      mouseY.set(dy)
+    },
+    [mouseX, mouseY]
+  )
+
+  const handleMouseLeave = useCallback(() => {
+    mouseX.set(0)
+    mouseY.set(0)
+  }, [mouseX, mouseY])
+
   return (
     <motion.div
+      ref={containerRef}
       initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
       animate={{ opacity: 1, scale: 1, rotate: 0 }}
       transition={{
@@ -198,7 +277,11 @@ function AnimatedLogo() {
         delay: 0.1,
         ease: [0.175, 0.885, 0.32, 1.1],
       }}
-      className="relative"
+      className="relative cursor-pointer"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ x, y, rotateX, rotateY, perspective: 800 }}
+      whileHover={{ scale: 1.08 }}
     >
       {/* 外圈呼吸环 */}
       <motion.div
@@ -221,7 +304,7 @@ function AnimatedLogo() {
   )
 }
 
-// ─── 装饰性标签 ────────────────────────────────────────────
+// ─── 装饰性标签（hover 交互）────────────────────────────────
 function DecorativeLabels() {
   const labels = [
     { text: "v1.0", delay: 1.2 },
@@ -242,7 +325,12 @@ function DecorativeLabels() {
           initial={{ opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3, delay: label.delay }}
-          className="rounded-full border border-border/50 px-2.5 py-0.5 text-[10px] tracking-widest text-muted-foreground/60 uppercase"
+          whileHover={{
+            scale: 1.08,
+            y: -2,
+            backgroundColor: "var(--secondary)",
+          }}
+          className="cursor-default rounded-full border border-border/50 px-2.5 py-0.5 text-[10px] tracking-widest text-muted-foreground/60 uppercase transition-colors duration-200 hover:border-border hover:text-muted-foreground"
         >
           {i > 0 && (
             <span className="mr-2 inline-block size-1 rounded-full bg-muted-foreground/20" />
@@ -251,6 +339,27 @@ function DecorativeLabels() {
         </motion.span>
       ))}
     </motion.div>
+  )
+}
+
+// ─── 副标题（hover 高亮交互）──────────────────────────────────
+function Subtitle() {
+  return (
+    <motion.p
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 1.0 }}
+      className="group max-w-sm cursor-default text-center text-sm leading-relaxed text-muted-foreground sm:text-base"
+    >
+      <RotatingKeyword />{" "}
+      <span className="transition-colors duration-300 group-hover:text-foreground/80">
+        music availability
+      </span>
+      <br />
+      <span className="transition-colors duration-300 group-hover:text-foreground/60">
+        across every major platform.
+      </span>
+    </motion.p>
   )
 }
 
@@ -274,16 +383,7 @@ export function HeroBrand() {
       <BrandTitle />
 
       {/* 副标题 */}
-      <motion.p
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 1.0 }}
-        className="max-w-sm text-center text-sm leading-relaxed text-muted-foreground sm:text-base"
-      >
-        <RotatingKeyword /> music availability
-        <br />
-        across every major platform.
-      </motion.p>
+      <Subtitle />
 
       {/* 装饰标签 */}
       <DecorativeLabels />

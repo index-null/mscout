@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
 
 interface BrandLogoProps {
   /** "sm" for header, "lg" for hero */
@@ -47,35 +48,57 @@ export function BrandLogo({
   const isLarge = size === "lg"
 
   return (
-    <div
+    <motion.div
       className={cn(
-        "flex items-center",
+        "group flex cursor-pointer items-center",
         isLarge ? "gap-3.5" : "gap-2.5",
         className
       )}
+      whileHover="hover"
     >
-      <LogoIcon className={isLarge ? "size-10" : "size-7"} />
-      <div className="flex flex-col">
-        <span
+      {/* Logo 图标 — hover 旋转 */}
+      <motion.div
+        variants={{
+          hover: { rotate: 15, scale: 1.1 },
+        }}
+        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+      >
+        <LogoIcon className={isLarge ? "size-10" : "size-7"} />
+      </motion.div>
+
+      <div className="flex flex-col overflow-hidden">
+        {/* 品牌名 — hover 字间距展开 */}
+        <motion.span
           className={cn(
-            "font-bold tracking-tight",
-            isLarge ? "text-xl" : "text-sm"
+            "font-bold transition-[letter-spacing] duration-300",
+            isLarge ? "text-xl" : "text-sm",
+            "group-hover:tracking-wide"
           )}
+          variants={{
+            hover: { x: 2 },
+          }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
         >
           Mscout
-        </span>
+        </motion.span>
+
+        {/* Tagline — hover 下划线展开 */}
         {showTagline && (
-          <span
-            className={cn(
-              "uppercase tracking-widest text-muted-foreground",
-              isLarge ? "text-[11px]" : "text-[10px]"
-            )}
-          >
-            Music Scout
+          <span className="relative">
+            <span
+              className={cn(
+                "uppercase tracking-widest text-muted-foreground transition-colors duration-200 group-hover:text-foreground/60",
+                isLarge ? "text-[11px]" : "text-[10px]"
+              )}
+            >
+              Music Scout
+            </span>
+            {/* 下划线 */}
+            <span className="absolute -bottom-px left-0 h-px w-0 bg-foreground/30 transition-all duration-300 group-hover:w-full" />
           </span>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }
 
