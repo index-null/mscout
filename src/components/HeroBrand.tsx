@@ -70,7 +70,7 @@ function BrandTitle() {
               delay: 0.3 + i * 0.08,
               ease: [0.215, 0.61, 0.355, 1],
             }}
-            className={`inline-block text-[clamp(4rem,12vw,9rem)] font-bold leading-none tracking-tighter ${
+            className={`inline-block text-[clamp(4rem,12vw,9rem)] leading-none font-bold tracking-tighter ${
               isM ? "relative" : ""
             }`}
             style={{ transformOrigin: "bottom center" }}
@@ -242,7 +242,7 @@ function DecorativeLabels() {
           initial={{ opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3, delay: label.delay }}
-          className="rounded-full border border-border/50 px-2.5 py-0.5 text-[10px] uppercase tracking-widest text-muted-foreground/60"
+          className="rounded-full border border-border/50 px-2.5 py-0.5 text-[10px] tracking-widest text-muted-foreground/60 uppercase"
         >
           {i > 0 && (
             <span className="mr-2 inline-block size-1 rounded-full bg-muted-foreground/20" />

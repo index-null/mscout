@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from "framer-motion"
 
 // ─── 预置歌曲数据 ─────────────────────────────────────────
 const PRESET_SONGS = [
-  { song: "bent", artist: "joey pecoraro" },
-  { song: "blue bird", artist: "lana del rey" },
-  { song: "没有寄的信", artist: "安溥 anpu" },
+  { song: "Bent", artist: "Joey Pecoraro" },
+  { song: "Blue Bird", artist: "Lana Del Rey" },
+  { song: "没有寄的信", artist: "安溥 Anpu" },
   { song: "See Me Now", artist: "Ryan Keen" },
   { song: "Norwegian Wood", artist: "The Beatles" },
   { song: "Empty", artist: "Ray LaMontagne" },
@@ -28,7 +28,9 @@ function useTypewriter(
 ) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [displayText, setDisplayText] = useState("")
-  const [phase, setPhase] = useState<"typing" | "paused" | "deleting" | "waiting">("typing")
+  const [phase, setPhase] = useState<
+    "typing" | "paused" | "deleting" | "waiting"
+  >("typing")
 
   useEffect(() => {
     const fullText = texts[currentIndex]
@@ -37,9 +39,12 @@ function useTypewriter(
     switch (phase) {
       case "typing":
         if (displayText.length < fullText.length) {
-          timer = setTimeout(() => {
-            setDisplayText(fullText.slice(0, displayText.length + 1))
-          }, typeSpeed + Math.random() * 40) // 微抖动模拟人类打字
+          timer = setTimeout(
+            () => {
+              setDisplayText(fullText.slice(0, displayText.length + 1))
+            },
+            typeSpeed + Math.random() * 40
+          ) // 微抖动模拟人类打字
         } else {
           timer = setTimeout(() => setPhase("paused"), 100)
         }
@@ -66,7 +71,16 @@ function useTypewriter(
     }
 
     return () => clearTimeout(timer)
-  }, [displayText, phase, currentIndex, texts, typeSpeed, deleteSpeed, pauseDuration, deletePauseDuration])
+  }, [
+    displayText,
+    phase,
+    currentIndex,
+    texts,
+    typeSpeed,
+    deleteSpeed,
+    pauseDuration,
+    deletePauseDuration,
+  ])
 
   return { displayText, currentIndex, phase }
 }
@@ -95,88 +109,31 @@ function TypewriterCursor({ visible }: { visible: boolean }) {
   )
 }
 
-// ─── 轮动 Placeholder 叠加层 ──────────────────────────────
-function RotatingPlaceholder({
-  songText,
-  artistText,
-  songPhase,
-  artistPhase,
-  currentIndex,
-  onClickSong,
-  onClickArtist,
-  songFocused,
-  artistFocused,
-  songHasValue,
-  artistHasValue,
+// ─── 输入框内 Placeholder 叠加层 ──────────────────────────
+function InputPlaceholder({
+  text,
+  phase,
+  paddingLeft,
+  onClick,
 }: {
-  songText: string
-  artistText: string
-  songPhase: string
-  artistPhase: string
-  currentIndex: number
-  onClickSong: () => void
-  onClickArtist: () => void
-  songFocused: boolean
-  artistFocused: boolean
-  songHasValue: boolean
-  artistHasValue: boolean
+  text: string
+  phase: string
+  paddingLeft: string
+  onClick: () => void
 }) {
-  // 当前歌曲的完整信息用于标签显示
-  const currentPreset = PRESET_SONGS[currentIndex]
-
   return (
-    <>
-      {/* 歌曲名 Placeholder */}
-      {!songHasValue && (
-        <div
-          className="pointer-events-auto absolute inset-0 z-10 flex cursor-text items-center pl-10"
-          onClick={onClickSong}
-        >
-          <span className="flex items-center text-sm text-muted-foreground/50">
-            {songText}
-            <TypewriterCursor visible={!songFocused && (songPhase === "typing" || songPhase === "deleting")} />
-          </span>
-        </div>
-      )}
-
-      {/* 艺术家 Placeholder */}
-      {!artistHasValue && (
-        <div
-          className="pointer-events-auto absolute inset-0 z-10 flex cursor-text items-center pl-4"
-          onClick={onClickArtist}
-        >
-          <span className="flex items-center text-sm text-muted-foreground/50">
-            {artistText}
-            <TypewriterCursor visible={!artistFocused && (artistPhase === "typing" || artistPhase === "deleting")} />
-          </span>
-        </div>
-      )}
-
-      {/* 底部预览标签 — 当前轮播条目提示 */}
-      <AnimatePresence mode="wait">
-        {!songHasValue && !artistHasValue && (
-          <motion.div
-            key={currentIndex}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="absolute -bottom-6 left-0 flex items-center gap-1.5"
-          >
-            <span className="text-[10px] tracking-wider text-muted-foreground/30 uppercase">
-              Try
-            </span>
-            <span className="text-[10px] font-medium text-muted-foreground/40">
-              {currentPreset.song}
-            </span>
-            <span className="text-[10px] text-muted-foreground/25">—</span>
-            <span className="text-[10px] text-muted-foreground/35">
-              {currentPreset.artist}
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+    <div
+      className="pointer-events-auto absolute inset-0 z-10 flex cursor-text items-center overflow-hidden"
+      style={{ paddingLeft }}
+      onClick={onClick}
+    >
+      <span className="flex items-center text-sm whitespace-nowrap text-muted-foreground/50">
+        {text}
+        <TypewriterCursor
+          visible={phase === "typing" || phase === "deleting"}
+        />
+      </span>
+    </div>
   )
 }
 
@@ -239,28 +196,39 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
 
   // 艺术家用从属打字机 — 与歌曲名同步切换
   const [artistDisplay, setArtistDisplay] = useState("")
-  const [artistPhase, setArtistPhase] = useState<"typing" | "paused" | "deleting" | "waiting">("typing")
+  const [artistPhase, setArtistPhase] = useState<
+    "typing" | "paused" | "deleting" | "waiting"
+  >("typing")
 
   useEffect(() => {
     const targetArtist = artistTexts[songTypewriter.currentIndex]
     let timer: ReturnType<typeof setTimeout>
 
-    // 跟随歌曲打字机的阶段
-    if (songTypewriter.phase === "typing") {
-      // 歌曲在打字 → 艺术家也在打字，但稍有延迟
-      if (artistDisplay.length < targetArtist.length) {
-        timer = setTimeout(() => {
-          setArtistDisplay(targetArtist.slice(0, artistDisplay.length + 1))
-          setArtistPhase("typing")
-        }, 70 + Math.random() * 35)
+    const stillTyping = artistDisplay.length < targetArtist.length
+    const stillDeleting = artistDisplay.length > 0
+
+    if (
+      songTypewriter.phase === "typing" ||
+      songTypewriter.phase === "paused"
+    ) {
+      // 歌曲在打字或已暂停 → 艺术家继续打完所有字符
+      if (stillTyping) {
+        timer = setTimeout(
+          () => {
+            setArtistDisplay(targetArtist.slice(0, artistDisplay.length + 1))
+            setArtistPhase("typing")
+          },
+          70 + Math.random() * 35
+        )
       } else {
         setArtistPhase("paused")
       }
-    } else if (songTypewriter.phase === "paused") {
-      setArtistPhase("paused")
-    } else if (songTypewriter.phase === "deleting") {
-      // 歌曲在删除 → 艺术家也在删除
-      if (artistDisplay.length > 0) {
+    } else if (
+      songTypewriter.phase === "deleting" ||
+      songTypewriter.phase === "waiting"
+    ) {
+      // 歌曲在删除或等待 → 艺术家也要删完所有字符
+      if (stillDeleting) {
         timer = setTimeout(() => {
           setArtistDisplay(artistDisplay.slice(0, -1))
           setArtistPhase("deleting")
@@ -268,13 +236,15 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
       } else {
         setArtistPhase("waiting")
       }
-    } else if (songTypewriter.phase === "waiting") {
-      setArtistDisplay("")
-      setArtistPhase("waiting")
     }
 
     return () => clearTimeout(timer!)
-  }, [songTypewriter.phase, songTypewriter.currentIndex, artistDisplay, artistTexts])
+  }, [
+    songTypewriter.phase,
+    songTypewriter.currentIndex,
+    artistDisplay,
+    artistTexts,
+  ])
 
   // 点击预设条目 → 自动填充并触发搜索
   const fillPreset = useCallback(
@@ -319,13 +289,10 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
 
   return (
     <div className="relative">
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-3 sm:flex-row"
-      >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
         {/* 歌曲名输入 */}
         <div className="relative flex-1">
-          <div className="pointer-events-none absolute left-3 top-1/2 z-20 -translate-y-1/2">
+          <div className="pointer-events-none absolute top-1/2 left-3 z-20 -translate-y-1/2">
             <SearchIcon className="size-4 text-muted-foreground/40" />
           </div>
           <input
@@ -336,28 +303,21 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
             onFocus={() => setSongFocused(true)}
             onBlur={() => setSongFocused(false)}
             disabled={isLoading}
-            className="h-11 w-full rounded-md border border-input bg-secondary/50 pl-10 pr-4 text-sm outline-none transition-all duration-200 placeholder:text-transparent focus:bg-secondary/80 focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50"
+            className="h-11 w-full rounded-md border border-input bg-secondary/50 pr-4 pl-10 text-sm transition-all duration-200 outline-none placeholder:text-transparent focus:bg-secondary/80 focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50"
             autoComplete="off"
             aria-label="Song title"
           />
           {/* 轮动 Placeholder — 歌曲名 */}
           {!songHasValue && !songFocused && (
-            <RotatingPlaceholder
-              songText={songTypewriter.displayText}
-              artistText=""
-              songPhase={songTypewriter.phase}
-              artistPhase="paused"
-              currentIndex={songTypewriter.currentIndex}
-              onClickSong={handlePlaceholderClickSong}
-              onClickArtist={() => {}}
-              songFocused={songFocused}
-              artistFocused={artistFocused}
-              songHasValue={songHasValue}
-              artistHasValue={true}
+            <InputPlaceholder
+              text={songTypewriter.displayText}
+              phase={songTypewriter.phase}
+              paddingLeft="2.5rem"
+              onClick={handlePlaceholderClickSong}
             />
           )}
           {songFocused && !songHasValue && (
-            <span className="pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 text-sm text-muted-foreground/30">
+            <span className="pointer-events-none absolute top-1/2 left-10 -translate-y-1/2 text-sm text-muted-foreground/30">
               Song title
             </span>
           )}
@@ -373,26 +333,21 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
             onFocus={() => setArtistFocused(true)}
             onBlur={() => setArtistFocused(false)}
             disabled={isLoading}
-            className="h-11 w-full rounded-md border border-input bg-secondary/50 pl-4 pr-4 text-sm outline-none transition-all duration-200 placeholder:text-transparent focus:bg-secondary/80 focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50"
+            className="h-11 w-full rounded-md border border-input bg-secondary/50 pr-4 pl-4 text-sm transition-all duration-200 outline-none placeholder:text-transparent focus:bg-secondary/80 focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50"
             autoComplete="off"
             aria-label="Artist"
           />
           {/* 轮动 Placeholder — 艺术家 */}
           {!artistHasValue && !artistFocused && (
-            <div
-              className="pointer-events-auto absolute inset-0 z-10 flex cursor-text items-center pl-4"
+            <InputPlaceholder
+              text={artistDisplay}
+              phase={artistPhase}
+              paddingLeft="1rem"
               onClick={handlePlaceholderClickArtist}
-            >
-              <span className="flex items-center text-sm text-muted-foreground/50">
-                {artistDisplay}
-                <TypewriterCursor
-                  visible={artistPhase === "typing" || artistPhase === "deleting"}
-                />
-              </span>
-            </div>
+            />
           )}
           {artistFocused && !artistHasValue && (
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-muted-foreground/30">
+            <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-sm text-muted-foreground/30">
               Artist
             </span>
           )}
@@ -419,7 +374,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
         </Button>
       </form>
 
-      {/* 底部：轮播指示器 + 提示 */}
+      {/* 底部：轮播指示器 + 当前歌曲提示 */}
       {!songHasValue && !artistHasValue && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -432,14 +387,27 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
             current={songTypewriter.currentIndex}
             onSelect={fillPreset}
           />
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-            className="text-[10px] tracking-wider text-muted-foreground/30 uppercase"
-          >
-            Click to try
-          </motion.span>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={songTypewriter.currentIndex}
+              initial={{ opacity: 0, x: 6 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -6 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="flex items-center gap-1.5"
+            >
+              <span className="text-[10px] tracking-wider text-muted-foreground/30 uppercase">
+                Try
+              </span>
+              <span className="max-w-[120px] truncate text-[10px] font-medium text-muted-foreground/40 sm:max-w-none">
+                {PRESET_SONGS[songTypewriter.currentIndex].song}
+              </span>
+              <span className="text-[10px] text-muted-foreground/25">—</span>
+              <span className="max-w-[100px] truncate text-[10px] text-muted-foreground/35 sm:max-w-none">
+                {PRESET_SONGS[songTypewriter.currentIndex].artist}
+              </span>
+            </motion.div>
+          </AnimatePresence>
         </motion.div>
       )}
     </div>
