@@ -12,8 +12,11 @@ declare global {
   const NavLink: typeof import('react-router-dom').NavLink
   const Navigate: typeof import('react-router-dom').Navigate
   const Outlet: typeof import('react-router-dom').Outlet
+  const PlatformCard: typeof import('./components/PlatformCard').PlatformCard
+  const ResultsGrid: typeof import('./components/ResultsGrid').ResultsGrid
   const Route: typeof import('react-router-dom').Route
   const Routes: typeof import('react-router-dom').Routes
+  const SearchForm: typeof import('./components/SearchForm').SearchForm
   const Suspense: typeof import('react').Suspense
   const ThemeProvider: typeof import('./components/theme-provider').ThemeProvider
   const cache: typeof import('react').cache
