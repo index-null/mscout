@@ -22,7 +22,7 @@ export function useSearch() {
       setData(result)
     } catch (err) {
       if ((err as Error).name === "AbortError") return
-      setError((err as Error).message ?? "搜索失败，请重试")
+      setError((err as Error).message ?? "Search failed. Please try again.")
     } finally {
       setIsLoading(false)
     }

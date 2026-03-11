@@ -224,7 +224,7 @@ export function PlatformCard({ platformId, result }: PlatformCardProps) {
           <div className="flex flex-1 flex-col items-center justify-center gap-2">
             <XCircleIcon className="size-5 text-muted-foreground/30" />
             <p className="text-xs text-muted-foreground">
-              {result.error ?? "请求失败"}
+              {result.error ?? "Request failed"}
             </p>
           </div>
         )}

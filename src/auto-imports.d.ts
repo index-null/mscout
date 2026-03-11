@@ -7,12 +7,15 @@
 export {}
 declare global {
   const Activity: typeof import('react').Activity
+  const BrandLogo: typeof import('./components/BrandLogo').BrandLogo
   const Fragment: typeof import('react').Fragment
   const Link: typeof import('react-router-dom').Link
+  const LogoIcon: typeof import('./components/BrandLogo').LogoIcon
   const NavLink: typeof import('react-router-dom').NavLink
   const Navigate: typeof import('react-router-dom').Navigate
   const Outlet: typeof import('react-router-dom').Outlet
   const PlatformCard: typeof import('./components/PlatformCard').PlatformCard
+  const PlatformMarquee: typeof import('./components/PlatformMarquee').PlatformMarquee
   const ResultsGrid: typeof import('./components/ResultsGrid').ResultsGrid
   const Route: typeof import('react-router-dom').Route
   const Routes: typeof import('react-router-dom').Routes

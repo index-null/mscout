@@ -30,7 +30,7 @@ export async function getPlatforms(): Promise<PlatformInfoResponse> {
   const res = await fetch(`${API_BASE}/platforms`)
 
   if (!res.ok) {
-    throw new Error(`获取平台列表失败: ${res.status} ${res.statusText}`)
+    throw new Error(`Failed to fetch platforms: ${res.status} ${res.statusText}`)
   }
 
   return res.json()

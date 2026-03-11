@@ -35,21 +35,21 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
         <Input
           ref={songRef}
           type="text"
-          placeholder="歌曲名"
+          placeholder="Song title"
           required
           disabled={isLoading}
           className="h-11 bg-secondary/50 pl-4 text-sm placeholder:text-muted-foreground/60 focus-visible:bg-secondary/80"
           autoComplete="off"
         />
         <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-wider text-muted-foreground/40">
-          必填
+          Required
         </span>
       </div>
       <div className="flex-1">
         <Input
           ref={artistRef}
           type="text"
-          placeholder="歌手"
+          placeholder="Artist"
           disabled={isLoading}
           className="h-11 bg-secondary/50 pl-4 text-sm placeholder:text-muted-foreground/60 focus-visible:bg-secondary/80"
           autoComplete="off"
@@ -64,12 +64,12 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
         {isLoading ? (
           <>
             <Loader2Icon className="size-4 animate-spin" />
-            <span>查询中</span>
+            <span>Searching</span>
           </>
         ) : (
           <>
             <SearchIcon className="size-4" />
-            <span>查询</span>
+            <span>Scout</span>
           </>
         )}
       </Button>

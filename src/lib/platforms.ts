@@ -20,19 +20,19 @@ export interface PlatformDisplayConfig {
 export const PLATFORM_MAP: Record<string, PlatformDisplayConfig> = {
   qq: {
     id: "qq",
-    name: "QQ 音乐",
+    name: "QQ Music",
     logo: qqLogo,
     color: "hsl(145, 63%, 42%)",
   },
   kugou: {
     id: "kugou",
-    name: "酷狗音乐",
+    name: "Kugou",
     logo: kugouLogo,
     color: "hsl(210, 80%, 50%)",
   },
   migu: {
     id: "migu",
-    name: "咪咕音乐",
+    name: "Migu",
     logo: miguLogo,
     color: "hsl(340, 75%, 55%)",
   },
@@ -44,7 +44,7 @@ export const PLATFORM_MAP: Record<string, PlatformDisplayConfig> = {
   },
   netease: {
     id: "netease",
-    name: "网易云音乐",
+    name: "NetEase",
     logo: neteaseLogo,
     color: "hsl(0, 70%, 50%)",
   },
