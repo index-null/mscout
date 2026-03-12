@@ -151,8 +151,10 @@ pnpm deploy
 
 ## Star History
 
-<div align="center">
-
-[![Star History Chart](https://api.star-history.com/svg?repos=index-null/mscout&type=Date)](https://star-history.com/#index-null/mscout&Date)
-
-</div>
+<a href="https://www.star-history.com/?repos=index-null%2Fmscout&type=date&legend=bottom-right">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/image?repos=index-null/mscout&type=date&theme=dark&legend=bottom-right" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/image?repos=index-null/mscout&type=date&legend=bottom-right" />
+   <img alt="Star History Chart" src="https://api.star-history.com/image?repos=index-null/mscout&type=date&legend=bottom-right" />
+ </picture>
+</a>
