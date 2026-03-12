@@ -65,8 +65,11 @@ function useTypewriter(
         break
 
       case "waiting":
-        setCurrentIndex((prev) => (prev + 1) % texts.length)
-        setPhase("typing")
+        // 使用 setTimeout 避免在 effect 内同步 setState 引起级联渲染
+        timer = setTimeout(() => {
+          setCurrentIndex((prev) => (prev + 1) % texts.length)
+          setPhase("typing")
+        }, 0)
         break
     }
 
@@ -221,7 +224,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
           70 + Math.random() * 35
         )
       } else {
-        setArtistPhase("paused")
+        timer = setTimeout(() => setArtistPhase("paused"), 0)
       }
     } else if (
       songTypewriter.phase === "deleting" ||
@@ -234,7 +237,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
           setArtistPhase("deleting")
         }, 25)
       } else {
-        setArtistPhase("waiting")
+        timer = setTimeout(() => setArtistPhase("waiting"), 0)
       }
     }
 
@@ -270,7 +273,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
   }, [fillPreset, songTypewriter.currentIndex])
 
   const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
+    (e: React.SyntheticEvent<HTMLFormElement>) => {
       e.preventDefault()
       const song = songRef.current?.value.trim() ?? ""
       const artist = artistRef.current?.value.trim() ?? ""
